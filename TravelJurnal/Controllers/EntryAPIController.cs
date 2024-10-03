@@ -14,7 +14,6 @@ namespace TravelJurnal.Controllers
     [ApiController]
     public class EntryAPIController : ControllerBase
     {
-
         private readonly ApplicationDbContext _context;
 
         public EntryAPIController(ApplicationDbContext context)
@@ -22,28 +21,40 @@ namespace TravelJurnal.Controllers
             _context = context;
         }
 
-        //<summary>
-        // This Api returns List of the Entries in the data base.
-        // /api/EntryAPI/listEntries
-        [HttpGet(template:"listEntries")]
-
-        
-        public List<Entry> listEntries()
+        // <summary>
+        // Returns a list of all entries in the database.
+        // </summary>
+        // <returns>List of Entry objects</returns>
+        [HttpGet(template: "listEntries")]
+        public async Task<ActionResult<List<Entry>>> ListEntries()
         {
-            return _context.Entry.ToList();
+            return await _context.Entry.ToListAsync();
         }
 
-        // /api/EntryAPI/findentry/17
-
-        [HttpGet(template:"FindEntry/{id}")]
-        public Entry FindEntry(int id) {
-
-            return _context.Entry.Find(id);
+        // <summary>
+        // Finds an entry by its ID.
+        // </summary>
+        // <param name="id">Entry ID</param>
+        // <returns>Entry object or NotFound result</returns>
+        [HttpGet(template: "FindEntry/{id}")]
+        public async Task<ActionResult<Entry>> FindEntry(int id)
+        {
+            var entry = await _context.Entry.FindAsync(id);
+            if (entry == null)
+            {
+                return NotFound();
+            }
+            return entry;
         }
 
-        // PUT: api/EntryAPI/updateEntry/5
+        // <summary>
+        // Updates an existing entry.
+        // </summary>
+        // <param name="id">Entry ID</param>
+        // <param name="entry">Updated Entry object</param>
+        // <returns>NoContent result or BadRequest</returns>
         [HttpPut(template: "updateEntry/{id}")]
-        public IActionResult UpdateEntry(int id, Entry entry)
+        public async Task<IActionResult> UpdateEntry(int id, Entry entry)
         {
             if (id != entry.EntryId)
             {
@@ -51,38 +62,64 @@ namespace TravelJurnal.Controllers
             }
             _context.Entry.Attach(entry);
             _context.Entry(entry).State = EntityState.Modified;
-            _context.SaveChanges();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EntryExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             return NoContent();
         }
 
-        // POST: api/EntryAPI/addEntry
+        // <summary>
+        // Creates a new entry.
+        // </summary>
+        // <param name="entry">New Entry object</param>
+        // <returns>CreatedAtAction result or BadRequest</returns>
         [HttpPost(template: "addEntry")]
-        public ActionResult<Entry> AddEntry(Entry entry)
+        public async Task<ActionResult<Entry>> AddEntry(Entry entry)
         {
             _context.Entry.Add(entry);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return CreatedAtAction("FindEntry", new { id = entry.EntryId }, entry);
         }
 
-        // DELETE: api/EntryAPI/deleteEntry/5
+        // <summary>
+        // Deletes an entry by its ID.
+        // </summary>
+        // <param name="id">Entry ID</param>
+        // <returns>will delete it if found and NoContent result or NotFound</returns>
         [HttpDelete(template: "deleteEntry/{id}")]
-        public IActionResult DeleteEntry(int id)
+        public async Task<IActionResult> DeleteEntry(int id)
         {
-            var entry = _context.Entry.Find(id);
+            var entry = await _context.Entry.FindAsync(id);
             if (entry == null)
             {
                 return NotFound();
             }
             _context.Entry.Remove(entry);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // Check if entry exists
+        // <summary>
+        // Checks if an entry exists.
+        // </summary>
+        // <param name="id">Entry ID</param>
+        // <returns>True if entry exists, false otherwise</returns>
         private bool EntryExists(int id)
         {
             return _context.Entry.Any(e => e.EntryId == id);
         }
-
     }
 }
+

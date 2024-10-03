@@ -14,67 +14,126 @@ namespace TravelJurnal.Controllers
     [ApiController]
     public class TravellerProfilesController : ControllerBase
     {
+        // DbContext instance for database operations
         private readonly ApplicationDbContext _context;
 
+        // Constructor initializes DbContext
         public TravellerProfilesController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/TravellerProfiles/listTravellerProfiles
+        // <summary>
+        // Returns a list of all traveller profiles in the database.
+        // </summary>
+        // <returns>List of TravellerProfile objects</returns>
         [HttpGet(template: "listTravellerProfiles")]
-        public List<TravellerProfile> listTravellerProfiles()
+        public async Task<ActionResult<List<TravellerProfile>>> listTravellerProfiles()
         {
-            return _context.TravellerProfile.ToList();
+            // Retrieve all traveller profiles from database
+            return await _context.TravellerProfile.ToListAsync();
         }
 
-        // GET: api/TravellerProfiles/findTravellerProfile/17
+        // <summary>
+        // Finds a traveller profile by its ID.
+        // </summary>
+        // <param name="id">Traveller ID</param>
+        // <returns>TravellerProfile object or NotFound result</returns>
         [HttpGet(template: "findTravellerProfile/{id}")]
-        public TravellerProfile FindTravellerProfile(int id)
+        public async Task<ActionResult<TravellerProfile>> FindTravellerProfile(int id)
         {
-            return _context.TravellerProfile.Find(id);
-        }
-
-        // PUT: api/TravellerProfiles/updateTravellerProfile/5
-        [HttpPut(template: "updateTravellerProfile/{id}")]
-        public IActionResult UpdateTravellerProfile(int id, TravellerProfile travellerProfile)
-        {
-            if (id != travellerProfile.TravellerId)
-            {
-                return BadRequest();
-            }
-            _context.TravellerProfile.Attach(travellerProfile);
-            _context.Entry(travellerProfile).State = EntityState.Modified;
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        // POST: api/TravellerProfiles/addTravellerProfile
-        [HttpPost(template: "addTravellerProfile")]
-        public ActionResult<TravellerProfile> AddTravellerProfile(TravellerProfile travellerProfile)
-        {
-            _context.TravellerProfile.Add(travellerProfile);
-            _context.SaveChanges();
-            return CreatedAtAction("FindTravellerProfile", new { id = travellerProfile.TravellerId }, travellerProfile);
-        }
-
-        // DELETE: api/TravellerProfiles/deleteTravellerProfile/5
-        [HttpDelete(template: "deleteTravellerProfile/{id}")]
-        public IActionResult DeleteTravellerProfile(int id)
-        {
-            var travellerProfile = _context.TravellerProfile.Find(id);
+            // Retrieve traveller profile by ID from database
+            var travellerProfile = await _context.TravellerProfile.FindAsync(id);
             if (travellerProfile == null)
             {
                 return NotFound();
             }
-            _context.TravellerProfile.Remove(travellerProfile);
-            _context.SaveChanges();
+            return travellerProfile;
+        }
+
+        // <summary>
+        // Updates an existing traveller profile.
+        // </summary>
+        // <param name="id">Traveller ID</param>
+        // <param name="travellerProfile">Updated TravellerProfile object</param>
+        // <returns>NoContent result or BadRequest</returns>
+        [HttpPut(template: "updateTravellerProfile/{id}")]
+        public async Task<IActionResult> UpdateTravellerProfile(int id, TravellerProfile travellerProfile)
+        {
+            // Validate traveller ID
+            if (id != travellerProfile.TravellerId)
+            {
+                return BadRequest();
+            }
+            // Attach traveller profile to DbContext
+            _context.TravellerProfile.Attach(travellerProfile);
+            // Set traveller profile state to modified
+            _context.Entry(travellerProfile).State = EntityState.Modified;
+            try
+            {
+                // Save changes to database
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TravellerProfileExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             return NoContent();
         }
 
-        // Check if traveller profile exists
+        // <summary>
+        // Creates a new traveller profile.
+        // </summary>
+        // <param name="travellerProfile">New TravellerProfile object</param>
+        // <returns>CreatedAtAction result or BadRequest</returns>
+        [HttpPost(template: "addTravellerProfile")]
+        public async Task<ActionResult<TravellerProfile>> AddTravellerProfile(TravellerProfile travellerProfile)
+        {
+            // Add traveller profile to DbContext
+            _context.TravellerProfile.Add(travellerProfile);
+            // Save changes to database
+            await _context.SaveChangesAsync();
+            // Return created traveller profile with ID
+            return CreatedAtAction("FindTravellerProfile", new { id = travellerProfile.TravellerId }, travellerProfile);
+        }
+
+        // <summary>
+        // Deletes a traveller profile by its ID.
+        // </summary>
+        // <param name="id">Traveller ID</param>
+        // <returns>NoContent result or NotFound</returns>
+        [HttpDelete(template: "deleteTravellerProfile/{id}")]
+        public async Task<IActionResult> DeleteTravellerProfile(int id)
+        {
+            // Retrieve traveller profile by ID from database
+            var travellerProfile = await _context.TravellerProfile.FindAsync(id);
+            // Validate traveller profile existence
+            if (travellerProfile == null)
+            {
+                return NotFound();
+            }
+            // Remove traveller profile from DbContext
+            _context.TravellerProfile.Remove(travellerProfile);
+            // Save changes to database
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // <summary>
+        // Checks if a traveller profile exists.
+        // </summary>
+        // <param name="id">Traveller ID</param>
+        // <returns>True if traveller profile exists, false otherwise</returns>
         private bool TravellerProfileExists(int id)
         {
+            // Check if traveller profile exists in database
             return _context.TravellerProfile.Any(e => e.TravellerId == id);
         }
     }

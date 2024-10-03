@@ -14,67 +14,126 @@ namespace TravelJurnal.Controllers
     [ApiController]
     public class DestinationAPIController : ControllerBase
     {
+        // DbContext instance for database operations
         private readonly ApplicationDbContext _context;
 
+        // Constructor initializes DbContext
         public DestinationAPIController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/DestinationAPI/listDestinations
+        // <summary>
+        // Returns a list of all destinations in the database.
+        // </summary>
+        // <returns>List of Destination objects</returns>
         [HttpGet(template: "listDestinations")]
-        public List<Destination> listDestinations()
+        public async Task<ActionResult<List<Destination>>> listDestinations()
         {
-            return _context.Destination.ToList();
+            // Retrieve all destinations from database
+            return await _context.Destination.ToListAsync();
         }
 
-        // GET: api/DestinationAPI/findDestination/17
+        // <summary>
+        // Finds a destination by its ID.
+        // </summary>
+        // <param name="id">Destination ID</param>
+        // <returns>Destination object</returns>
         [HttpGet(template: "findDestination/{id}")]
-        public Destination FindDestination(int id)
+        public async Task<ActionResult<Destination>> FindDestination(int id)
         {
-            return _context.Destination.Find(id);
-        }
-
-        // PUT: api/DestinationAPI/updateDestination/5
-        [HttpPut(template: "updateDestination/{id}")]
-        public IActionResult UpdateDestination(int id, Destination destination)
-        {
-            if (id != destination.DestinationId)
-            {
-                return BadRequest();
-            }
-            _context.Destination.Attach(destination);
-            _context.Entry(destination).State = EntityState.Modified;
-            _context.SaveChanges();
-            return NoContent();
-        }
-
-        // POST: api/DestinationAPI/addDestination
-        [HttpPost(template: "addDestination")]
-        public ActionResult<Destination> AddDestination(Destination destination)
-        {
-            _context.Destination.Add(destination);
-            _context.SaveChanges();
-            return CreatedAtAction("FindDestination", new { id = destination.DestinationId }, destination);
-        }
-
-        // DELETE: api/DestinationAPI/deleteDestination/5
-        [HttpDelete(template: "deleteDestination/{id}")]
-        public IActionResult DeleteDestination(int id)
-        {
-            var destination = _context.Destination.Find(id);
+            // Retrieve destination by ID from database
+            var destination = await _context.Destination.FindAsync(id);
             if (destination == null)
             {
                 return NotFound();
             }
-            _context.Destination.Remove(destination);
-            _context.SaveChanges();
+            return destination;
+        }
+
+        // <summary>
+        // Updates an existing destination.
+        // </summary>
+        // <param name="id">Destination ID</param>
+        // <param name="destination">Updated Destination object</param>
+        // <returns>if no id NoContent result or BadRequest</returns>
+        [HttpPut(template: "updateDestination/{id}")]
+        public async Task<IActionResult> UpdateDestination(int id, Destination destination)
+        {
+            // Validate destination ID
+            if (id != destination.DestinationId)
+            {
+                return BadRequest();
+            }
+            // Attach destination to DbContext
+            _context.Destination.Attach(destination);
+            // Set destination state to modified
+            _context.Entry(destination).State = EntityState.Modified;
+            try
+            {
+                // Save changes to database
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DestinationExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
             return NoContent();
         }
 
-        // Check if destination exists
+        // <summary>
+        // Creates a new destination.
+        // </summary>
+        // <param name="destination">New Destination object</param>
+        // <returns>Created Action result or BadRequest</returns>
+        [HttpPost(template: "addDestination")]
+        public async Task<ActionResult<Destination>> AddDestination(Destination destination)
+        {
+            // Add destination to DbContext
+            _context.Destination.Add(destination);
+            // Save changes to database
+            await _context.SaveChangesAsync();
+            // Return created destination with ID
+            return CreatedAtAction("FindDestination", new { id = destination.DestinationId }, destination);
+        }
+
+        // <summary>
+        // Deletes a destination by its ID.
+        // </summary>
+        // <param name="id">Destination ID</param>
+        // <returns>NoContent result or NotFound</returns>
+        [HttpDelete(template: "deleteDestination/{id}")]
+        public async Task<IActionResult> DeleteDestination(int id)
+        {
+            // Retrieve destination by ID from database
+            var destination = await _context.Destination.FindAsync(id);
+            // Validate destination existence
+            if (destination == null)
+            {
+                return NotFound();
+            }
+            // Remove destination from DbContext
+            _context.Destination.Remove(destination);
+            // Save changes to database
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        // <summary>
+        // Checks if a destination exists.
+        // </summary>
+        // <param name="id">Destination ID</param>
+        // <returns>True if destination exist</returns>
         private bool DestinationExists(int id)
         {
+            // Check if destination exists in database
             return _context.Destination.Any(e => e.DestinationId == id);
         }
     }
