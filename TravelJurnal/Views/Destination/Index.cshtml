@@ -1,0 +1,42 @@
+﻿@model IEnumerable<TravelJurnal.Models.Destination>
+
+@{
+    ViewData["Title"] = "Destinations";
+}
+
+<h1>Destinations</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Location)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.Location)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.DestinationId">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.DestinationId">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.DestinationId" onclick="return confirm('Are you sure you want to delete this destination?');">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2">No destinations found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
