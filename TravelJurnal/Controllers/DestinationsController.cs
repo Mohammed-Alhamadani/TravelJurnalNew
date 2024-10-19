@@ -93,7 +93,7 @@ namespace TravelJurnal.Controllers
         // </summary>
         // <param name="destination">New Destination object</param>
         // <returns>Created Action result or BadRequest</returns>
-        [HttpPost(template: "addDestination")]
+        [HttpPost(template: "destination/create")]
         public async Task<ActionResult<Destination>> AddDestination(Destination destination)
         {
             // Add destination to DbContext
@@ -138,4 +138,3 @@ namespace TravelJurnal.Controllers
         }
     }
 }
-

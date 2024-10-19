@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelJurnal.Data;
 
@@ -11,9 +12,11 @@ using TravelJurnal.Data;
 namespace TravelJurnal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241018223549_AddDestinations")]
+    partial class AddDestinations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,7 +246,7 @@ namespace TravelJurnal.Data.Migrations
 
                     b.HasKey("DestinationId");
 
-                    b.ToTable("Destination");
+                    b.ToTable("Destinations");
                 });
 
             modelBuilder.Entity("TravelJurnal.Models.DestinationTrip", b =>

@@ -11,13 +11,18 @@ namespace TravelJurnal.Data
         public DbSet<TravellerProfile> TravellerProfile { get; set; }
 
         // This Map to the Trip Class.
-        public DbSet<Trip>  Trip { get; set; }
+        public DbSet<Trip> Trips { get; set; }
+
 
         //This map to Destination Class.
         public DbSet<Destination> Destination { get; set; }
 
+
         // This map to Entry Class.
-        public DbSet<Entry> Entry { get; set; }
+        public DbSet<Entry> Entries { get; set; }
+
+        public DbSet<DestinationTrip> DestinationTrips { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {

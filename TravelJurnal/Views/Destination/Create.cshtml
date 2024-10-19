@@ -4,17 +4,60 @@
     ViewData["Title"] = "Create Destination";
 }
 
+
+@{
+    ViewData["Title"] = "Create Destination";
+}
+
 <h1>Create Destination</h1>
 
 <h4>Destination</h4>
 <hr />
-<form asp-action="Create">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="Location" class="control-label"></label>
         <input asp-for="Location" class="form-control" />
         <span asp-validation-for="Location" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <label for="Image" class="control-label"></label>
+        <input type="file" name="Image" class="form-control" />
     </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </form>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+<style>
+    html {
+        font-size: 14px;
+    }
+
+    }
+
+    .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    }
+
+    html {
+        position: relative;
+        min-height: 100%;
+    }
+
+    body {
+        margin: 10px; /* Remove default margin */
+        margin-bottom: 60px; /* Bottom margin for content */
+        height: 100vh; /* Full viewport height */
+        background-image: url('/images/backimage.jpg'); /* Primary background image */
+        background-size: cover; /* Cover the entire background */
+        background-repeat: no-repeat; /* Prevent repeating the image */
+        background-position: center; /* Center the image */
+    }
+</style>

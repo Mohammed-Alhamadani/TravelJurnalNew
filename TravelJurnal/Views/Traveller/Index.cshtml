@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<TravelJurnal.Models.TravellerProfile>
+
+@{
+    ViewData["Title"] = "Traveller Profiles";
+}
+
+<h1>Traveller Profiles</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Profile</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Traveller Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TravellerName</td>
+                <td>@item.TravellerEmail</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.TravellerId" class="btn btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@item.TravellerId" class="btn btn-danger">Delete</a>
+                    <a asp-action="Details" asp-route-id="@item.TravellerId" class="btn btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

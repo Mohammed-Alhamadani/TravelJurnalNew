@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelJurnal.Data;
 
@@ -11,9 +12,11 @@ using TravelJurnal.Data;
 namespace TravelJurnal.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241018155054_imageUpload")]
+    partial class imageUpload
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,12 +241,11 @@ namespace TravelJurnal.Data.Migrations
 
                     b.Property<string>("Location")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("DestinationId");
 
-                    b.ToTable("Destination");
+                    b.ToTable("Destinations");
                 });
 
             modelBuilder.Entity("TravelJurnal.Models.DestinationTrip", b =>
@@ -333,6 +335,9 @@ namespace TravelJurnal.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TripId"));
 
+                    b.Property<int?>("DestinationId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -344,6 +349,8 @@ namespace TravelJurnal.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("TripId");
+
+                    b.HasIndex("DestinationId");
 
                     b.HasIndex("TravellerProfileTravellerId");
 
@@ -423,7 +430,7 @@ namespace TravelJurnal.Data.Migrations
             modelBuilder.Entity("TravelJurnal.Models.Entry", b =>
                 {
                     b.HasOne("TravelJurnal.Models.Destination", "Destination")
-                        .WithMany()
+                        .WithMany("Entry")
                         .HasForeignKey("DestinationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -441,9 +448,20 @@ namespace TravelJurnal.Data.Migrations
 
             modelBuilder.Entity("TravelJurnal.Models.Trip", b =>
                 {
+                    b.HasOne("TravelJurnal.Models.Destination", null)
+                        .WithMany("Trips")
+                        .HasForeignKey("DestinationId");
+
                     b.HasOne("TravelJurnal.Models.TravellerProfile", null)
                         .WithMany("Trip")
                         .HasForeignKey("TravellerProfileTravellerId");
+                });
+
+            modelBuilder.Entity("TravelJurnal.Models.Destination", b =>
+                {
+                    b.Navigation("Entry");
+
+                    b.Navigation("Trips");
                 });
 
             modelBuilder.Entity("TravelJurnal.Models.TravellerProfile", b =>

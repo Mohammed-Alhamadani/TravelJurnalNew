@@ -1,19 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
-using TravelJurnal.Data.Migrations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelJurnal.Models
 {
     public class Trip
     {
-        [Key]
         public int TripId { get; set; }
         public string Title { get; set; }
         public int TravelerId { get; set; }
-        public TravellerProfile Traveler { get; set; }
-        public ICollection<Destination> Destinations { get; set; }
-        public ICollection<Entry> Entries { get; set; }
 
-
-
+        // Navigation property
+        public ICollection<DestinationTrip> DestinationTrips { get; set; } = new List<DestinationTrip>();
     }
 }

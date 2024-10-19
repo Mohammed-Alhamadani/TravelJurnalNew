@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TravelJurnal.Data;
 using TravelJurnal.Models;
-using TravelJurnal.Services; // Assuming you have a service layer
 
 namespace TravelJurnal.Controllers
 {
@@ -29,14 +33,12 @@ namespace TravelJurnal.Controllers
             {
                 return NotFound();
             }
-
             var destination = await _context.Destination
                 .FirstOrDefaultAsync(m => m.DestinationId == id);
             if (destination == null)
             {
                 return NotFound();
             }
-
             return View(destination);
         }
 
@@ -47,20 +49,35 @@ namespace TravelJurnal.Controllers
         }
 
         // POST: Destination/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("destination/create")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DestinationId,Location")] Destination destination)
+        public async Task<IActionResult> Create(Destination destination, IFormFile Image)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(destination);
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
+                return View(destination);
+            }
+
+            // ...
+
+            try
+            {
+                _context.Destination.Add(destination);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(destination);
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine("{ex.Message}");
+                ModelState.AddModelError("","error");
+                return View(destination);
+            }
         }
+
 
         // GET: Destination/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -69,7 +86,6 @@ namespace TravelJurnal.Controllers
             {
                 return NotFound();
             }
-
             var destination = await _context.Destination.FindAsync(id);
             if (destination == null)
             {
@@ -79,9 +95,7 @@ namespace TravelJurnal.Controllers
         }
 
         // POST: Destination/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        [HttpPost("edit-destination/{id}")] // Specify a unique route for this action
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("DestinationId,Location")] Destination destination)
         {
@@ -89,7 +103,6 @@ namespace TravelJurnal.Controllers
             {
                 return NotFound();
             }
-
             if (ModelState.IsValid)
             {
                 try
@@ -120,19 +133,18 @@ namespace TravelJurnal.Controllers
             {
                 return NotFound();
             }
-
             var destination = await _context.Destination
                 .FirstOrDefaultAsync(m => m.DestinationId == id);
             if (destination == null)
             {
                 return NotFound();
             }
-
             return View(destination);
         }
 
         // POST: Destination/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost("delete-destination/{id}")] // Specify a unique route for this action
+        [ActionName("Delete")] // Maintain the original action name for clarity
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
@@ -141,7 +153,6 @@ namespace TravelJurnal.Controllers
             {
                 _context.Destination.Remove(destination);
             }
-
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

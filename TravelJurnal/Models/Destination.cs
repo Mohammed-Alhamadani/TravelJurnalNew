@@ -6,12 +6,12 @@ namespace TravelJurnal.Models
     {
         [Key]
         public int DestinationId { get; set; }
-        public string Location { get; set; } = string.Empty;
 
-        public ICollection<Trip> Trips { get; set; }
-        public ICollection<Entry> Entry { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Location { get; set; }
 
-
+        public string ImagePath { get; set; }
 
     }
 }

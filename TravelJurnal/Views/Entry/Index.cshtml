@@ -1,33 +1,75 @@
 ﻿@model IEnumerable<TravelJurnal.Models.Entry>
 
-<div class="text-center">
-    <h1 class="display-4">Entries</h1>
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Trip ID</th>
-                <th>Description</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var entry in Model)
-            {
-                <tr>
-                    <td>@entry.EntryId</td>
-                    <td>@entry.TripId</td>
-                    <td>@entry.Description</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@entry.EntryId">Details</a> |
-                        <a asp-action="Edit" asp-route-id="@entry.EntryId">Edit</a> |
-                        <a asp-action="Delete" asp-route-id="@entry.EntryId">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Trip)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Destination)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Trip.TripId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Destination.DestinationId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.EntryId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.EntryId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.EntryId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
+<style>
+    html {
+        font-size: 14px;
+    }
+
+    }
+
+    .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    }
+
+    html {
+        position: relative;
+        min-height: 100%;
+    }
+
+    body {
+        margin: 0; /* Remove default margin */
+        margin-bottom: 60px; /* Bottom margin for content */
+        height: 100vh; /* Full viewport height */
+        background-image: url('/images/backimage.jpg'); /* Primary background image */
+        background-size: cover; /* Cover the entire background */
+        background-repeat: no-repeat; /* Prevent repeating the image */
+        background-position: center; /* Center the image */
+    }
+</style>
